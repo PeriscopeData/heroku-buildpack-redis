@@ -17,7 +17,7 @@ run-sshtunnel() {
   mkfifo "$sentinel"
 
   # Start processes.
-  aux-start sshtunnel SIGINT ssh -F vendor/ssh/ssh_config -nNt
+  aux-start sshtunnel SIGINT ssh -F vendor/ssh/ssh_config bastion -nNt
   app-start SIGTERM "$@"
   pid=$!
 
