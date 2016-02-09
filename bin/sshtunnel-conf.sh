@@ -30,7 +30,7 @@ for SSH_URL in $SSH_URLS; do
     eval SSH_URL_VALUE="$DB_HOST:$DB_PORT"
     eval "export ${SSH_URL}_SSHTUNNEL=redis://${DB_USER}:${DB_PASS}@127.0.0.1:600${n}"
   else
-    eval "export ${SSH_URL}_SSHTUNNEL=127.0.0.1:600${n}"
+    eval "export ${SSH_URL}_SSHTUNNEL=localhost:600${n}"
   fi
   eval echo "Setting $VAR_NAME config var to listen on ${SSH_URL_VALUE}"
   cat >> /app/vendor/ssh/ssh_config << EOFEOF
