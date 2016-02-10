@@ -62,11 +62,6 @@ config-gen() {
   at config-gen-start
   source bin/sshtunnel-conf.sh
   at config-gen-end
-
-  for SSHTUNNEL_URL in $SSH_URLS; do
-    at "config-gen-override $SSHTUNNEL_URL"
-    eval "$SSHTUNNEL_URL=\$${SSHTUNNEL_URL}_SSHTUNNEL"
-  done
 }
 
 aux-start() {
