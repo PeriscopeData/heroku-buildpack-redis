@@ -118,19 +118,6 @@ app-start() {
     # SIGTERM on shutdown.
     "$@"
 
-    # Translate SIGHUP to the appropriate signal to stop the child
-    # (probably SIGTERM in this case). This *will* cancel the wait and may
-    # lead to the outer subshell exiting before the app.
-    trap "kill -$signal $!" SIGHUP
-    
-    
-    # Ignore SIGTERM because the dyno will broadcast it to all children --
-    # there is no need to translate it.
-    trap "" SIGTERM
-
-    # Wait for the app to finish, either by crash or by $signal
-    wait
-
     # Notify FIFO if this finishes first
     echo "$name" > $sentinel
 
