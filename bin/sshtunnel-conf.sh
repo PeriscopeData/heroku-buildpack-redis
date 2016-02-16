@@ -17,7 +17,7 @@ Host bastion
      StrictHostKeyChecking no
 EOFEOF
 
-for SSH_URL in $SSH_URLS; do
+for SSH_URL in $SSHTUNNEL_URLS; do
   eval SSH_URL_VALUE=\$$SSH_URL
   eval "VAR_NAME=${SSH_URL}_SSHTUNNEL"
   if [[ $SSH_URL_VALUE == "redis://"* ]]; then
