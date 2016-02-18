@@ -37,7 +37,7 @@ run-sshtunnel() {
   # rather than blocking because there's nothing reading the other end.
   rm -f "$sentinel"
 
-  # Clean up any running processes.
+  # Clean up any running processes.
   # SIGTERM the application's process group (hence the negative PID), just in
   # case something else crashed. If the dyno is shutting down, then SIGTERM
   # has already been sent.
@@ -75,7 +75,7 @@ aux-start() {
     trap '' SIGTERM
 
     # Start child in the background.
-    "$@" &
+    (while[ 1 ]; do "$@"; echo SSH DIED, RESTARTING in 5s; sleep 5; done )&
 
     # Translate SIGHUP to the appropriate signal to stop the child (anything
     # except SIGTERM which is ignored). This *will* cancel the wait and may
