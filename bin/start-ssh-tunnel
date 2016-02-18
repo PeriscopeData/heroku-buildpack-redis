@@ -75,7 +75,13 @@ aux-start() {
     trap '' SIGTERM
 
     # Start child in the background.
-    (while[ 1 ]; do "$@"; echo SSH DIED, RESTARTING in 5s; sleep 5; done )&
+    (
+      while [ 1 ];do 
+        "$@"
+        echo SSH DIED, RESTARTING in 5s
+        sleep 5
+        done 
+    )&
 
     # Translate SIGHUP to the appropriate signal to stop the child (anything
     # except SIGTERM which is ignored). This *will* cancel the wait and may
