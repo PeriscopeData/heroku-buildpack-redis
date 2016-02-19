@@ -56,45 +56,6 @@ run-sshtunnel() {
   done
 }
 
-
-  pid=$!
-
-  # Don't exit top script until all subprocesses are done.
-  trap '' SIGTERM
-
-  # This read will block the process waiting on a msg to be put into the
-  # fifo. If any of the processes defined above should exit, a msg will be
-  # put into the fifo causing the read operation to un-block. The process
-  # putting the msg into the fifo will use it's process name as a msg so that
-  # we can print the offending process to stdout.
-  declare exit_process
-  read exit_process < "$sentinel"
-  at "exit process=$exit_process"
-
-  # Remove the FIFO. This allows following writes to simply create a file,
-  # rather than blocking because there's nothing reading the other end.
-  rm -f "$sentinel"
-
-  # Clean up any running processes.
-  # SIGTERM the application's process group (hence the negative PID), just in
-  # case something else crashed. If the dyno is shutting down, then SIGTERM
-  # has already been sent.
-  at "kill-app pid=$pid"
-  kill -SIGTERM -$pid
-
-  # Wait for the app to finish.
-  at "wait-app pid=$pid"
-  wait $pid
-
-  # Kill the auxiliary processes.
-  # Send each one SIGHUP which will be translated by the trap in aux-start.
-  declare name
-  for name in "${!pids[@]}"; do
-    at "kill-aux name=$name pid=${pids[$name]} signal=${signals[$name]}"
-    kill -SIGHUP "${pids[$name]}"
-  done
-}
-
 config-gen() {
   # Generate config files
   at config-gen-start
