@@ -18,7 +18,45 @@ run-sshtunnel() {
 
   # Start processes.
   aux-start sshtunnel SIGINT ssh -F vendor/ssh/ssh_config bastion -nNt
-  app-start SIGTERM "$@"
+ "$@" &
+  pid=$!
+
+  # This read will block the process waiting on a msg to be put into the
+  # fifo. If any of the processes defined above should exit, a msg will be
+  # put into the fifo causing the read operation to un-block. The process
+  # putting the msg into the fifo will use it's process name as a msg so that
+  # we can print the offending process to stdout.
+  (
+    declare exit_process
+    read exit_process < "$sentinel"
+    at "exit process=$exit_process"
+  
+    # Remove the FIFO. This allows following writes to simply create a file,
+    # rather than blocking because there's nothing reading the other end.
+    rm -f "$sentinel"
+  
+    # Clean up any running processes.
+    # SIGTERM the application's process group (hence the negative PID), just in
+    # case something else crashed. If the dyno is shutting down, then SIGTERM
+    # has already been sent.
+    at "kill-app pid=$pid"
+    kill -SIGTERM -$pid
+  ) &
+  
+  # Wait for the app to finish.
+  at "wait-app pid=$pid"
+  fg $pid
+
+  # Kill the auxiliary processes.
+  # Send each one SIGHUP which will be translated by the trap in aux-start.
+  declare name
+  for name in "${!pids[@]}"; do
+    at "kill-aux name=$name pid=${pids[$name]} signal=${signals[$name]}"
+    kill -SIGHUP "${pids[$name]}"
+  done
+}
+
+
   pid=$!
 
   # Don't exit top script until all subprocesses are done.
@@ -100,39 +138,6 @@ aux-start() {
   pids[$name]=$!
   signals[$name]=$signal
   at "$name-launched pid=$! signal=$signal"
-}
-
-app-start() {
-  declare name=app signal=$1
-  shift
-
-  (
-    at "$name-start"
-
-    # Start child in the background. This is before the trap because
-    # the app needs to be able to receive when the dyno broadcasts
-    # SIGTERM on shutdown.
-    "$@"&
-
-    # Translate SIGHUP to the appropriate signal to stop the child
-    # (probably SIGTERM in this case). This *will* cancel the wait and may
-    # lead to the outer subshell exiting before the app.
-    trap "kill -$signal $!" SIGHUP
-
-    # Ignore SIGTERM because the dyno will broadcast it to all children --
-    # there is no need to translate it.
-    trap "" SIGTERM
-
-    # Wait for the app to finish, either by crash or by $signal
-    wait
-
-    # Notify FIFO if this finishes first
-    echo "$name" > $sentinel
-
-    at "$name-end"
-  ) &
-
-  at "$name-launched pid=$!"
 }
 
 at() {
