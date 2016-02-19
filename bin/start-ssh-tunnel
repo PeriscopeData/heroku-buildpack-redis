@@ -19,7 +19,8 @@ run-sshtunnel() {
 
   # Start processes.
   aux-start sshtunnel SIGINT ssh -F vendor/ssh/ssh_config bastion -nNt
- "$@" &
+  "$@" &
+  jid=%-
   pid=$!
 
   # This read will block the process waiting on a msg to be put into the
@@ -45,8 +46,8 @@ run-sshtunnel() {
   ) &
   
   # Wait for the app to finish.
-  at "wait-app pid=$pid"
-  fg $pid
+  at "wait-app pid=$pid jid=$jid"
+  fg $jid
 
   # Kill the auxiliary processes.
   # Send each one SIGHUP which will be translated by the trap in aux-start.
