@@ -20,8 +20,8 @@ run-sshtunnel() {
   # Start processes.
   aux-start sshtunnel SIGINT ssh -F vendor/ssh/ssh_config bastion -nNt
   "$@" &
-  jid=%-
   pid=$!
+  jid=`jobs -l | grep $pid | perl -lne 'print "$1" if /^\[(\d+)\]/'`
 
   # This read will block the process waiting on a msg to be put into the
   # fifo. If any of the processes defined above should exit, a msg will be
