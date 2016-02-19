@@ -23,9 +23,4 @@ mkdir -p $BUILD_DIR/bin
 cp "$BUILDPACK_DIR/bin/start-ssh-tunnel" $BUILD_DIR/bin/
 chmod +x $BUILD_DIR/bin/start-ssh-tunnel
 
-echo "-----> Moving the start-ssh-tunnel-interactive script into app/bin"
-mkdir -p $BUILD_DIR/bin
-cp "$BUILDPACK_DIR/bin/start-ssh-tunnel-interactive" $BUILD_DIR/bin/
-chmod +x $BUILD_DIR/bin/start-ssh-tunnel-interactive
-
 echo "-----> sshtunnel done"
