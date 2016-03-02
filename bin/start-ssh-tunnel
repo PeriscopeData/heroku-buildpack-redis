@@ -17,6 +17,7 @@ run-sshtunnel() {
   rm -f "$sentinel"
   mkfifo "$sentinel"
 
+  bundle exec rake periscope:dump_bastion_pem
   # Start processes.
   aux-start sshtunnel SIGINT ssh -F vendor/ssh/ssh_config bastion -nNt
   "$@" &
