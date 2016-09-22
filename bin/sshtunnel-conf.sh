@@ -10,8 +10,8 @@ ForwardAgent no
 IdentityFile /app/tmp/bastion.pem
 
 Host bastion
-     User ubuntu
-     HostName 52.91.193.157
+     User bastion
+     HostName $SSH_BASTION_HOST
      BatchMode yes
      ExitOnForwardFailure yes
      StrictHostKeyChecking no
