@@ -15,7 +15,7 @@ Host bastion
      BatchMode yes
      ExitOnForwardFailure yes
      StrictHostKeyChecking no
-     ServerAliveInterval 60
+     ServerAliveInterval 10
 EOFEOF
 
 for SSH_URL in $SSHTUNNEL_URLS; do
